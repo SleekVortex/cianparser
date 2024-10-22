@@ -3,3 +3,4 @@
 /dist/
 /cianparser.egg-info/
 __pycache__/
+*.csv
