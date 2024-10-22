@@ -1,17 +1,23 @@
-import bs4
 import re
+import bs4
 import time
+
+from random import randrange
+from fake_useragent import UserAgent
 
 
 class FlatPageParser:
     def __init__(self, session, url):
-        self.session = session
+        self.__session__ = session
         self.url = url
+        self.__ua__ = UserAgent()
 
     def __load_page__(self):
-        res = self.session.get(self.url)
+        time.sleep(randrange(5, 8))
+        res = self.__session__.get(self.url)
+        time.sleep(randrange(5, 8))
         if res.status_code == 429:
-            time.sleep(10)
+            time.sleep(randrange(30, 45))
         res.raise_for_status()
         self.offer_page_html = res.text
         self.offer_page_soup = bs4.BeautifulSoup(self.offer_page_html, 'html.parser')
@@ -28,6 +34,8 @@ class FlatPageParser:
             "floor": -1,
             "floors_count": -1,
             "phone": "",
+            "images": [],
+            "description": "",
         }
 
         spans = self.offer_page_soup.select("span")
@@ -66,6 +74,15 @@ class FlatPageParser:
             page_data["phone"] = self.offer_page_html[self.offer_page_html.find("+7"): self.offer_page_html.find("+7") + 16].split('"')[0]. \
                 replace(" ", ""). \
                 replace("-", "")
+            
+        for img_tag in self.offer_page_soup.select('img.a10a3f92e9--container--KIwW4'):
+            img = img_tag['src']
+            if '.jpg' in img:
+                page_data['images'].append(img)
+
+        desc = self.offer_page_soup.select_one('div.a10a3f92e9--layout--BaqYw span').text
+        if desc:
+            page_data['description'] = desc
 
         return page_data
 
