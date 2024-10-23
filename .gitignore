@@ -4,3 +4,4 @@
 /cianparser.egg-info/
 __pycache__/
 *.csv
+*.ipynb
