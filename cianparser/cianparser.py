@@ -1,12 +1,14 @@
-import cloudscraper
 import time
+import cloudscraper
 
-from cianparser.constants import CITIES, METRO_STATIONS, DEAL_TYPES, OBJECT_SUBURBAN_TYPES
-from cianparser.url_builder import URLBuilder
+from fake_useragent import UserAgent
+
 from cianparser.proxy_pool import ProxyPool
+from cianparser.url_builder import URLBuilder
 from cianparser.flat.list import FlatListPageParser
-from cianparser.suburban.list import SuburbanListPageParser
 from cianparser.newobject.list import NewObjectListParser
+from cianparser.suburban.list import SuburbanListPageParser
+from cianparser.constants import CITIES, METRO_STATIONS, DEAL_TYPES, OBJECT_SUBURBAN_TYPES
 
 
 def list_locations():
@@ -31,7 +33,10 @@ class CianParser:
 
         self.__parser__ = None
         self.__session__ = cloudscraper.create_scraper()
-        self.__session__.headers = {'Accept-Language': 'en'}
+        self.__session__.headers = {
+            'Accept-Language': 'en',
+            'User-agent': UserAgent().random
+            }
         self.__proxy_pool__ = ProxyPool(proxies=proxies)
         self.__location_name__ = location
         self.__location_id__ = location_id
