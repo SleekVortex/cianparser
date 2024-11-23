@@ -90,6 +90,6 @@ class BaseListPageParser:
         keys = self.result[0].keys()
 
         with open(self.file_path, 'w', newline='', encoding='utf-8') as output_file:
-            dict_writer = csv.DictWriter(output_file, keys, delimiter=';')
+            dict_writer = csv.DictWriter(output_file, keys, delimiter=',',  quoting=csv.QUOTE_ALL)
             dict_writer.writeheader()
             dict_writer.writerows(self.result)

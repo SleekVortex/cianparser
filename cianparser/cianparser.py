@@ -46,7 +46,8 @@ class CianParser:
             return
         available_proxy = self.__proxy_pool__.get_available_proxy(url_list)
         if available_proxy is not None:
-            self.__session__.proxies = {"https": available_proxy}
+            proxy_string = f"http://{available_proxy}"
+            self.__session__.proxies = {"http": proxy_string, "https": proxy_string}
 
     def __load_list_page__(self, url_list_format, page_number, attempt_number_exception):
         url_list = url_list_format.format(page_number)
