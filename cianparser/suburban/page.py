@@ -20,17 +20,17 @@ class SuburbanPageParser:
         self.__load_page__()
 
         page_data = {
-            "year_of_construction": -1,
-            "house_material_type": -1,
-            "land_plot":-1,
-            "land_plot_status": -1,
-            "heating_type": -1,
-            "gas_type":-1,
-            "water_supply_type":-1,
-            "sewage_system":-1,
-            "bathroom":-1,
-            "living_meters": -1,
-            "floors_count": -1,
+            "year_of_construction": None,
+            "house_material_type": None,
+            "land_plot":None,
+            "land_plot_status": None,
+            "heating_type": None,
+            "gas_type":None,
+            "water_supply_type":None,
+            "sewage_system":None,
+            "bathroom":None,
+            "living_meters": None,
+            "floors_count": None,
             "phone": "",
         }
 
