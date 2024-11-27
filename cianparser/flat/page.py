@@ -15,7 +15,6 @@ class FlatPageParser:
     def __load_page__(self):
         time.sleep(randrange(5, 8))
         res = self.__session__.get(self.url)
-        time.sleep(randrange(5, 8))
         if res.status_code == 429:
             time.sleep(randrange(30, 45))
         res.raise_for_status()
@@ -88,7 +87,7 @@ class FlatPageParser:
                 page_data["year_of_construction"] = ps[index + 1].text
 
         spans = self.offer_page_soup.select("div[data-name='ObjectFactoids'] span")
-
+ 
         for index, span in enumerate(spans):
 
             if "Год сдачи" in span.text:
