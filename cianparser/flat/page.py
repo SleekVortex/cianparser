@@ -30,6 +30,13 @@ class FlatPageParser:
             "heating_type": None,
             "finish_type": None,
             "living_meters": None,
+            "floor_type": None,
+            "parking": None,
+            "elevators": None,
+            "emergency": None,
+            "total_meters": None,
+            "bathroom": None,
+            "building_status": None,
             "kitchen_meters": None,
             "floor": None,
             "floors_count": None,
@@ -38,37 +45,64 @@ class FlatPageParser:
             "description": "",
         }
 
+        ps = self.offer_page_soup.select("div[data-name='OfferSummaryInfoLayout'] p")
+
+        for index, p in enumerate(ps):
+            if "Тип жилья" == p.text:
+                page_data["object_type"] = ps[index + 1].text
+
+            elif "Тип дома" == p.text:
+                page_data["house_material_type"] = ps[index + 1].text
+
+            elif "Тип перекрытий" == p.text:
+                page_data["floor_type"] = ps[index + 1].text
+            
+            elif "Парковка" == p.text:
+                page_data["parking"] = ps[index + 1].text
+
+            elif "Количество лифтов" == p.text:
+                page_data["elevators"] = ps[index + 1].text
+
+            elif "Аварийность" == p.text:
+                page_data["emergency"] = ps[index + 1].text != 'Нет'
+
+            elif "Отопление" == p.text:
+                page_data["heating_type"] = ps[index + 1].text
+
+            elif "Отделка" == p.text:
+                page_data["finish_type"] = ps[index + 1].text
+            
+            elif "Общая площадь" == p.text:
+                page_data["total_meters"] = ps[index + 1].text
+            
+            elif "Санузел" == p.text:
+                page_data["bathroom"] = ps[index + 1].text
+
+            elif "Площадь кухни" == p.text:
+                page_data["kitchen_meters"] = ps[index + 1].text
+
+            elif "Жилая площадь" == p.text:
+                page_data["living_meters"] = ps[index + 1].text
+
+            elif "Год постройки" in p.text:
+                page_data["year_of_construction"] = ps[index + 1].text
+
         spans = self.offer_page_soup.select("span")
+
         for index, span in enumerate(spans):
-            if "Тип жилья" == span.text:
-                page_data["object_type"] = spans[index + 1].text
-
-            if "Тип дома" == span.text:
-                page_data["house_material_type"] = spans[index + 1].text
-
-            if "Отопление" == span.text:
-                page_data["heating_type"] = spans[index + 1].text
-
-            if "Отделка" == span.text:
-                page_data["finish_type"] = spans[index + 1].text
-
-            if "Площадь кухни" == span.text:
-                page_data["kitchen_meters"] = spans[index + 1].text
-
-            if "Жилая площадь" == span.text:
-                page_data["living_meters"] = spans[index + 1].text
-
-            if "Год постройки" in span.text:
-                page_data["year_of_construction"] = spans[index + 1].text
 
             if "Год сдачи" in span.text:
                 page_data["year_of_construction"] = spans[index + 1].text
 
-            if "Этаж" == span.text:
+            elif "Дом" in span.text:
+                page_data["building_status"] = spans[index + 1].text
+
+            elif "Этаж" == span.text:
                 ints = re.findall(r'\d+', spans[index + 1].text)
                 if len(ints) == 2:
                     page_data["floor"] = int(ints[0])
                     page_data["floors_count"] = int(ints[1])
+
 
         if "+7" in self.offer_page_html:
             page_data["phone"] = self.offer_page_html[self.offer_page_html.find("+7"): self.offer_page_html.find("+7") + 16].split('"')[0]. \
