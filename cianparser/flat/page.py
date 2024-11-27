@@ -87,7 +87,7 @@ class FlatPageParser:
             elif "Год постройки" in p.text:
                 page_data["year_of_construction"] = ps[index + 1].text
 
-        spans = self.offer_page_soup.select("span")
+        spans = self.offer_page_soup.select("div[data-name='ObjectFactoids'] span")
 
         for index, span in enumerate(spans):
 
