@@ -3,7 +3,7 @@ import random
 import asyncio
 import cloudscraper
 
-from random import randrange
+from random import randrange, normalvariate, expovariate
 from fake_useragent import UserAgent
 from curl_cffi.requests import AsyncSession, Session, get
 from cianparser.proxy_pool import ProxyPoolAsync
@@ -305,7 +305,7 @@ class CianParserAsync:
         res = get(url=url_list, proxy=proxy, timeout=15, headers=self.headers)
 
         if res.status_code == 429:
-            asyncio.sleep(10)
+            time.sleep(max(20 + normalvariate(0, 1), 100 * expovariate(lambd=2)))
 
         res.raise_for_status()
         return res.text

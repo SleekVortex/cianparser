@@ -3,7 +3,7 @@ import bs4
 import time
 import asyncio
 
-from random import randrange
+from random import randrange, normalvariate, expovariate
 from fake_useragent import UserAgent
 
 
@@ -133,10 +133,10 @@ class FlatPageParserAsync:
         self.__ua__ = UserAgent()
 
     async def __load_page__(self):
-        await asyncio.sleep(randrange(7, 27))
+        await asyncio.sleep(max(5 + normalvariate(0, 1), 18 * expovariate(lambd=2)))
         res = await self.__session__.get(self.url, proxy=self.__proxy__)
         if res.status_code == 429:
-            await asyncio.sleep(randrange(30, 60))
+            await asyncio.sleep(max(20 + normalvariate(0, 1), 80 * expovariate(lambd=2)))
         res.raise_for_status()
         self.offer_page_html = res.text
         self.offer_page_soup = bs4.BeautifulSoup(self.offer_page_html, 'html.parser')
