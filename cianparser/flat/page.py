@@ -133,7 +133,7 @@ class FlatPageParserAsync:
         self.__ua__ = UserAgent()
 
     async def __load_page__(self):
-        await asyncio.sleep(max(5 + normalvariate(0, 1), 18 * expovariate(lambd=2)))
+        await asyncio.sleep(max(5 + normalvariate(0, 1), 25 * expovariate(lambd=2)))
         res = await self.__session__.get(self.url, proxy=self.__proxy__)
         if res.status_code == 429:
             await asyncio.sleep(max(20 + normalvariate(0, 1), 80 * expovariate(lambd=2)))

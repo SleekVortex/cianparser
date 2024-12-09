@@ -42,7 +42,10 @@ class BaseListPageParser:
     def print_parse_progress(self, page_number, count_of_pages, offers, ind):
         total_planed_offers = len(offers) * count_of_pages
 
-        if self.count_parsed_offers % 30 == 0:   
+        if self.count_parsed_offers == 1:
+            print('Parsing started')
+
+        elif self.count_parsed_offers % 30 == 0:   
             print(f"\r {page_number - self.start_page + 1}"
                 #   f" | {page_number} page with list: [" + "=>" * (ind + 1) + "  " * (len(offers) - ind - 1) + "]" + f" {math.ceil((ind + 1) * 100 / len(offers))}" + "%" +
             f" | Count of all parsed: {self.count_parsed_offers}."

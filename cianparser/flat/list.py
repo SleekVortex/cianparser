@@ -214,8 +214,8 @@ class FlatListPageParserAsync(BaseListPageParser):
             print('Страницы закончились')
             return True, 0, True 
 
-        print("")
-        print(f"\r {page_number} page: {len(offers)} offers", end="\r", flush=True)
+        # print("")
+        # print(f"\r {page_number} page: {len(offers)} offers", end="\r", flush=True)
 
         if page_number == self.start_page and attempt_number == 0:
             print(f"Collecting information from pages with list of offers", end="\n")

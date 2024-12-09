@@ -81,8 +81,14 @@ class CianParser:
 
             while attempt_number_exception < 3 and not page_parsed:
                 try:
+
+                    html = self.__load_list_page__(
+                        url_list_format=url_list_format, page_number=page_number,
+                        attempt_number_exception=attempt_number_exception
+                    )
+
                     (page_parsed, attempt_number, end_all_parsing) = self.__parser__.parse_list_offers_page(
-                        html=self.__load_list_page__(url_list_format=url_list_format, page_number=page_number, attempt_number_exception=attempt_number_exception),
+                        html=html,
                         page_number=page_number,
                         count_of_pages=self.__parser__.end_page + 1 - self.__parser__.start_page,
                         attempt_number=attempt_number_exception)
