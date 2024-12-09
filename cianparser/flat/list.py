@@ -123,8 +123,22 @@ class FlatListPageParserAsync(BaseListPageParser):
 
     def build_file_path(self):
         now_time = datetime.now().strftime("%d_%b_%Y_%H_%M_%S_%f")
-        file_name = FILE_NAME_FLAT_FORMAT.format(self.accommodation_type, self.deal_type, self.start_page, self.end_page, translit(self.location_name.lower(), reversed=True), now_time)
-        return pathlib.Path(pathlib.Path.cwd(), file_name.replace("'", ""))
+        file_name = FILE_NAME_FLAT_FORMAT.format(
+            self.accommodation_type,
+            self.deal_type,
+            self.start_page,
+            self.end_page,
+            translit(self.location_name.lower(), reversed=True),
+            now_time
+        )
+        file_name = file_name.replace("'", "")
+
+        # Create the 'data' directory if it doesn't exist
+        data_dir = pathlib.Path.cwd() / 'data'
+        data_dir.mkdir(exist_ok=True)
+
+        # Return the path to the new file within the 'data' directory
+        return data_dir / file_name
     
     def parse_list_page_ordinary(self, list_soup):
         """
