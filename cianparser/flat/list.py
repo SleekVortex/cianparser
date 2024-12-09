@@ -209,6 +209,11 @@ class FlatListPageParserAsync(BaseListPageParser):
 
         # Парсинг офферов в зависимости от типа страницы
         offers = self.parse_list_func(list_soup)
+
+        if not offers:
+            print('Страницы закончились')
+            return True, 0, True 
+
         print("")
         print(f"\r {page_number} page: {len(offers)} offers", end="\r", flush=True)
 
