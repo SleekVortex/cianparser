@@ -3,9 +3,13 @@ import bs4
 import time
 import random
 import socket
+import asyncio
 import urllib.error
 import urllib.request
 
+from random import choice
+from curl_cffi import requests
+from curl_cffi.requests import AsyncSession
 from fake_useragent import UserAgent
 
 
@@ -80,3 +84,50 @@ class ProxyPool:
             print(f"there are not available proxies..", end="\n\n")
 
         return self.__current_proxy__
+
+
+class ProxyPoolAsync:
+    def __init__(self, proxies, use_local_ip=True):
+        self.proxy_pool = self.get_proxy_pool(proxies, use_local_ip)
+        self.url = 'https://cian.ru/'
+
+    @staticmethod
+    def is_captcha(page_html):
+        page_soup = bs4.BeautifulSoup(page_html, "html.parser") #Проверка на капчу
+        return "Captcha" in page_soup.text
+    
+    def get_proxy_pool(self, proxies, use_local_ip):
+        if proxies:
+            pool = [f'http://{proxy}' for proxy in proxies]
+        else:
+            pool = []
+        if use_local_ip:
+            pool.append(None) #Добавление отстутствия прокси, то есть локальный адрес
+        return pool
+
+    async def is_available_proxy(self, url, proxy):
+        headers = {"User-Agent": UserAgent().random}
+        try:
+            async with AsyncSession() as s:
+                response = await s.get(url, headers=headers, proxy=proxy, timeout=15)
+                if response.status_code == 200:
+                    page_html = response.text
+                    return page_html and not self.is_captcha(page_html)
+                else:
+                    print(f"Proxy {proxy}: Status code {response.status_code}")
+                    return False
+        except requests.exceptions.RequestException as e: # Более специфичное исключение
+            print(f"Proxy {proxy}: Error: {e}")
+            return False
+        except Exception as e: # Общее исключение на случай других ошибок
+            print(f"Proxy {proxy}: Unexpected Error: {e}")
+            return False
+
+    async def get_available_proxies(self):
+        print('Проверка прокси')
+        tasks = [self.is_available_proxy(self.url, proxy) for proxy in self.proxy_pool]
+        is_available_proxies = await asyncio.gather(*tasks)
+        available_proxies = [proxy for proxy, is_available in zip(self.proxy_pool, is_available_proxies) if is_available]
+        if not available_proxies:
+            raise Exception("No available ips found.")
+        self.proxy_pool = available_proxies

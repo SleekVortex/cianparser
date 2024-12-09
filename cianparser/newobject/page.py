@@ -20,14 +20,14 @@ class NewObjectPageParser:
         self.__load_page__()
 
         page_data = {
-            "year_of_construction": -1,
-            "house_material_type": -1,
-            "finish_type": -1,
-            "ceiling_height":-1,
-            "class": -1,
-            "parking_type": -1,
-            "floors_from": -1,
-            "floors_to": -1,
+            "year_of_construction": None,
+            "house_material_type": None,
+            "finish_type": None,
+            "ceiling_height":None,
+            "class": None,
+            "parking_type": None,
+            "floors_from": None,
+            "floors_to": None,
         }
 
         spans = self.offer_page_soup.select("span")

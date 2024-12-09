@@ -302,8 +302,7 @@ def define_specification_data(block):
     specification_data["rooms_count"] = -1
     specification_data["total_meters"] = -1
 
-    title = block.select("div[data-name='LinkArea']")[0].select("div[data-name='GeneralInfoSectionRowComponent']")[
-        0].text
+    title = block.select_one("div[data-name='LinkArea' div[data-name='GeneralInfoSectionRowComponent']").text
 
     common_properties = block.select("div[data-name='LinkArea']")[0]. \
         select("div[data-name='GeneralInfoSectionRowComponent']")[0].text
