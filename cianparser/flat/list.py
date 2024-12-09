@@ -158,21 +158,22 @@ class FlatListPageParserAsync(BaseListPageParser):
         common_data["url"] = full_url
         return common_data
 
-    def __is_ordinary_page__(self, list_soup):
+    def __get_is_ordinary_page__(self, list_soup) -> None:
         """
             Метод проверяет, является ли страница стандартной.
         """
         header = list_soup.select_one("div[data-name='HeaderDefault']")
         if not header:
-            return False
-        return True
+            self.__is_ordinary_page__ = False
+        else:
+            self.__is_ordinary_page__ = True
 
-    def __get_parse_functions__(self, list_soup):
+    def __get_parse_functions__(self):
         """
             Метод устанавливает функции парсинга в зависимости от того,
                 является ли страница стандартной.
         """
-        if self.__is_ordinary_page__(list_soup):
+        if self.__is_ordinary_page__:
             self.parse_list_func = self.parse_list_page_ordinary
             self.parse_offer_func = self.parse_offer_ordinary
         else:
@@ -186,9 +187,11 @@ class FlatListPageParserAsync(BaseListPageParser):
         if list_soup.text.find("Captcha") > 0:
             print(f"\r{page_number} page: there is CAPTCHA... failed to parse page...")
             return False, attempt_number + 1, True
-
+        
+        # Определение типа страницы
+        self.__get_is_ordinary_page__(list_soup)
         # Определение функци парсинга
-        self.__get_parse_functions__(list_soup)
+        self.__get_parse_functions__()
 
         # Парсинг офферов в зависимости от типа страницы
         offers = self.parse_list_func(list_soup)
@@ -236,10 +239,15 @@ class FlatListPageParserAsync(BaseListPageParser):
             common_data["deal_type"] = self.deal_type
             common_data["accommodation_type"] = self.accommodation_type
 
-            author_data = define_author(block=offer)
-            location_data = define_location_data(block=offer, is_sale=self.is_sale())
-            price_data = define_price_data(block=offer)
-            # specification_data = define_specification_data(block=offer)
+            author_data = define_author(block=offer, is_ordinary_page=self.__is_ordinary_page__)
+            location_data = define_location_data(
+                block=offer, is_sale=self.is_sale(),
+                is_ordinary_page=self.__is_ordinary_page__
+            )
+            price_data = define_price_data(block=offer, is_ordinary_page=self.__is_ordinary_page__)
+            specification_data = define_specification_data(
+                block=offer, is_ordinary_page=self.__is_ordinary_page__
+            )
 
             if define_deal_url_id(common_data["url"]) in self.result_set:
                 return

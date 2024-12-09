@@ -18,8 +18,10 @@ def define_rooms_count(description):
         rooms_count = 4
     elif "5-комн" in description:
         rooms_count = 5
+    elif "доля" in description.lower():
+        rooms_count = "Доля"
     else:
-        rooms_count = -1
+        rooms_count = None
 
     return rooms_count
 
@@ -31,11 +33,14 @@ def define_deal_url_id(url: str):
     if len(url_path_elements[-2]) > 3:
         return url_path_elements[-2]
 
-    return "-1"
+    return None
 
 
-def define_author(block):
-    spans = block.select("div")[0].select("span")
+def define_author(block, is_ordinary_page):
+    if is_ordinary_page:
+        spans = block.select("div[data-name='LinkArea'] span")
+    else:
+        spans = soup.select_one("section[data-name='CardContainer']").select("div span")
 
     author_data = {
         "author": "",
@@ -43,43 +48,32 @@ def define_author(block):
     }
 
     for index, span in enumerate(spans):
-        if "Агентство недвижимости" in span:
-            author_data["author"] = spans[index + 1].text.replace(",", ".").strip()
-            author_data["author_type"] = "real_estate_agent"
-            return author_data
-
-    for index, span in enumerate(spans):
         if "Собственник" in span:
             author_data["author"] = spans[index + 1].text
             author_data["author_type"] = "homeowner"
             return author_data
 
-    for index, span in enumerate(spans):
-        if "Риелтор" in span:
+        elif "Риелтор" in span:
             author_data["author"] = spans[index + 1].text
             author_data["author_type"] = "realtor"
             return author_data
 
-    for index, span in enumerate(spans):
-        if "Ук・оф.Представитель" in span:
+        elif "Ук・оф.Представитель" in span:
             author_data["author"] = spans[index + 1].text
             author_data["author_type"] = "official_representative"
             return author_data
 
-    for index, span in enumerate(spans):
-        if "Представитель застройщика" in span:
+        elif "Представитель застройщика" in span:
             author_data["author"] = spans[index + 1].text
             author_data["author_type"] = "representative_developer"
             return author_data
 
-    for index, span in enumerate(spans):
-        if "Застройщик" in span:
+        elif "Застройщик" in span:
             author_data["author"] = spans[index + 1].text
             author_data["author_type"] = "developer"
             return author_data
 
-    for index, span in enumerate(spans):
-        if "ID" in span.text:
+        elif "ID" in span.text:
             author_data["author"] = span.text
             author_data["author_type"] = "unknown"
             return author_data
@@ -87,8 +81,16 @@ def define_author(block):
     return author_data
 
 
-def parse_location_data(block):
-    general_info_sections = block.select_one("div[data-name='LinkArea']").select("div[data-name='GeneralInfoSectionRowComponent']")
+def parse_location_data(block, is_ordinary_page):
+
+    if is_ordinary_page:
+        general_info_sections = block.select(
+            "div[data-name='LinkArea'] div[data-name='GeneralInfoSectionRowComponent']"
+        )
+    else:
+        general_info_sections = block.select(
+            "div[data-name='OfferGeneralInfoLayout'] div"
+        )
 
     location_data = dict()
     location_data["district"] = ""
@@ -118,8 +120,17 @@ def parse_location_data(block):
     return location_data
 
 
-def define_location_data(block, is_sale):
-    elements = block.select_one("div[data-name='LinkArea']").select("div[data-name='GeneralInfoSectionRowComponent']")
+def define_location_data(block, is_sale, is_ordinary_page):
+
+    if is_ordinary_page:
+        elements = block.select(
+            "div[data-name='LinkArea'] div[data-name='GeneralInfoSectionRowComponent']"
+        )
+    else:
+        elements = block.select(
+            "div[data-name='OfferGeneralInfoLayout'] div"
+        )
+
 
     location_data = dict()
     location_data["district"] = ""
@@ -134,7 +145,7 @@ def define_location_data(block, is_sale):
         if ("ЖК" in element.text) and ("«" in element.text) and ("»" in element.text):
             location_data["residential_complex"] = element.text.split("«")[1].split("»")[0]
 
-        if "р-н" in element.text and len(element.text) < 250:
+        elif "р-н" in element.text and len(element.text) < 250:
             address_elements = element.text.split(",")
             if len(address_elements) < 2:
                 continue
@@ -265,12 +276,14 @@ def define_location_data(block, is_sale):
     return location_data
 
 
-def define_price_data(block):
-    elements = block.select("div[data-name='LinkArea']")[0]. \
-        select("span[data-mark='MainPrice']")
+def define_price_data(block, is_ordinary_page):
+    if is_ordinary_page:
+        elements = block.select("div[data-name='LinkArea'] span[data-mark='MainPrice']")
+    else:
+        elements = block.select("span[data-testid='Price']")
 
     price_data = {
-        "price_per_month": -1,
+        "price_per_month": None,
         "commissions": 0,
     }
 
@@ -286,7 +299,7 @@ def define_price_data(block):
 
             return price_data
 
-        if "₽" in element.text and "млн" not in element.text:
+        elif "₽" in element.text and "млн" not in element.text:
             price_description = element.text
             price_data["price"] = int("".join(price_description[:price_description.find("₽") - 1].split()))
 
@@ -295,26 +308,26 @@ def define_price_data(block):
     return price_data
 
 
-def define_specification_data(block):
+def define_specification_data(block, is_ordinary_page):
     specification_data = dict()
-    specification_data["floor"] = -1
-    specification_data["floors_count"] = -1
-    specification_data["rooms_count"] = -1
-    specification_data["total_meters"] = -1
+    specification_data["floor"] = None
+    specification_data["floors_count"] = None
+    specification_data["rooms_count"] = None
+    specification_data["total_meters"] = None
 
-    title = block.select_one("div[data-name='LinkArea' div[data-name='GeneralInfoSectionRowComponent']").text
+    if is_ordinary_page:
+        title = block.select_one("div[data-name='LinkArea'] div[data-name='GeneralInfoSectionRowComponent']").text
+    else:
+        title = block.select_one("div[data-name='OfferGeneralInfoLayout'] a[data-name='Features']").text
 
-    common_properties = block.select("div[data-name='LinkArea']")[0]. \
-        select("div[data-name='GeneralInfoSectionRowComponent']")[0].text
-
-    if common_properties.find("м²") is not None:
-        total_meters = title[: common_properties.find("м²")].replace(",", ".")
+    if title.find("м²") is not None:
+        total_meters = title[: title.find("м²")].replace(",", ".")
         if len(re.findall(FLOATS_NUMBERS_REG_EXPRESSION, total_meters)) != 0:
             specification_data["total_meters"] = float(
                 re.findall(FLOATS_NUMBERS_REG_EXPRESSION, total_meters)[-1].replace(" ", "").replace("-", ""))
 
-    if "этаж" in common_properties:
-        floor_per = common_properties[common_properties.rfind("этаж") - 7: common_properties.rfind("этаж")]
+    if "этаж" in title:
+        floor_per = title[title.rfind("этаж") - 7: title.rfind("этаж")]
         floor_properties = floor_per.split("/")
 
         if len(floor_properties) == 2:
@@ -326,6 +339,6 @@ def define_specification_data(block):
             if len(ints) != 0:
                 specification_data["floors_count"] = int(ints[-1])
 
-    specification_data["rooms_count"] = define_rooms_count(common_properties)
+    specification_data["rooms_count"] = define_rooms_count(title)
 
     return specification_data
