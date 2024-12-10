@@ -53,8 +53,6 @@ class FlatListPageParser(BaseListPageParser):
             self.parse_offer(offer=offer)
             self.print_parse_progress(page_number=page_number, count_of_pages=count_of_pages, offers=offers, ind=ind)
 
-        time.sleep(2)
-
         return True, 0, False
 
     def parse_offer(self, offer: bs4.BeautifulSoup):
@@ -272,17 +270,21 @@ class FlatListPageParserAsync(BaseListPageParser):
                 return
 
             page_data = dict()
+            
             if self.with_extra_data:
-                flat_parser = FlatPageParserAsync(session=session, url=common_data["url"], proxy=current_proxy)
-                try:
-                    page_data = await flat_parser.parse_page()
-                except Exception as e:
-                    print('Ошибка парсинга страницы объявления:', e)
+                attempts = 1
+                while attempts <= 3:
+                    flat_parser = FlatPageParserAsync(session=session, url=common_data["url"], proxy=current_proxy)
+                    try:
+                        page_data = await flat_parser.parse_page()
+                        break
+                    except Exception as e:
+                        attempts += 1
+                        print('Ошибка парсинга страницы объявления:', e)
 
             self.count_parsed_offers += 1
             self.result_set.add(define_deal_url_id(common_data["url"]))
-            # self.result.append(union_dicts(author_data, common_data, specification_data, price_data, page_data, location_data))
-            self.result.append(union_dicts(author_data, common_data, price_data, page_data, location_data))
+            self.result.append(union_dicts(author_data, common_data, specification_data, price_data, page_data, location_data))
 
             # Выводим результаты
             self.print_parse_progress(page_number=page_number, count_of_pages=count_of_pages, offers=offers, ind=ind)

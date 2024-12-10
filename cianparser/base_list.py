@@ -40,16 +40,16 @@ class BaseListPageParser:
         return None
 
     def print_parse_progress(self, page_number, count_of_pages, offers, ind):
-        total_planed_offers = len(offers) * count_of_pages
+        total_planed_offers = 28 * count_of_pages
 
         if self.count_parsed_offers == 1:
             print('Parsing started')
 
-        elif self.count_parsed_offers % 30 == 0:   
+        elif self.count_parsed_offers % 100 == 0:   
             print(f"\r {page_number - self.start_page + 1}"
                 #   f" | {page_number} page with list: [" + "=>" * (ind + 1) + "  " * (len(offers) - ind - 1) + "]" + f" {math.ceil((ind + 1) * 100 / len(offers))}" + "%" +
             f" | Count of all parsed: {self.count_parsed_offers}."
-            f" Progress ratio: {math.ceil(self.count_parsed_offers * 100 / total_planed_offers)} %.")
+            f" Progress ratio: {int(self.count_parsed_offers * 100 / total_planed_offers)} %.")
 
     def remove_unnecessary_fields(self):
         if self.is_sale():

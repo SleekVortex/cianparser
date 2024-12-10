@@ -40,7 +40,7 @@ def define_author(block, is_ordinary_page):
     if is_ordinary_page:
         spans = block.select("div[data-name='LinkArea'] span")
     else:
-        spans = soup.select_one("section[data-name='CardContainer']").select("div span")
+        spans = block.select_one("section[data-name='CardContainer']").select("div span")
 
     author_data = {
         "author": "",
@@ -130,7 +130,6 @@ def define_location_data(block, is_sale, is_ordinary_page):
         elements = block.select(
             "div[data-name='OfferGeneralInfoLayout'] div"
         )
-
 
     location_data = dict()
     location_data["district"] = ""

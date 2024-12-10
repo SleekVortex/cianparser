@@ -133,13 +133,15 @@ class FlatPageParserAsync:
         self.__ua__ = UserAgent()
 
     async def __load_page__(self):
-        await asyncio.sleep(max(5 + normalvariate(0, 1), 25 * expovariate(lambd=2)))
+        await asyncio.sleep(max(normalvariate(10, 1), 25 * expovariate(lambd=2)))
         res = await self.__session__.get(self.url, proxy=self.__proxy__)
         if res.status_code == 429:
-            await asyncio.sleep(max(20 + normalvariate(0, 1), 80 * expovariate(lambd=2)))
+            print('429 при парсинге страницы ожидание...')
+            await asyncio.sleep(max(normalvariate(90, 10), 180 * expovariate(lambd=1.5)))
+        elif res.status_code == 200:
+            self.offer_page_html = res.text
+            self.offer_page_soup = bs4.BeautifulSoup(self.offer_page_html, 'html.parser')
         res.raise_for_status()
-        self.offer_page_html = res.text
-        self.offer_page_soup = bs4.BeautifulSoup(self.offer_page_html, 'html.parser')
 
     def parse_page_ordinary(self, page_data):
         """
