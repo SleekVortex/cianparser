@@ -1,9 +1,7 @@
 import time
 import random
-import asyncio
 import cloudscraper
 
-from pprint import pprint
 from random import randrange, normalvariate, expovariate
 from fake_useragent import UserAgent
 from curl_cffi.requests import AsyncSession, Session, get
@@ -313,14 +311,14 @@ class CianParserAsync:
 
         if res.status_code == 429:
             print('429 при парсинге главной страницы, ожидание...')
-            time.sleep(max(normalvariate(90, 10), 180 * expovariate(lambd=1.5)))
+            time.sleep(max(normalvariate(150, 30), 300 * expovariate(lambd=1)))
 
         res.raise_for_status()
         return res.text
 
     async def __run__(self, url_list_format: str):
         print('Доступные прокси')
-        pprint(*self.__proxy_pool__.proxy_pool)
+        print(*self.__proxy_pool__.proxy_pool, sep='\n')
 
         print(f"\n{' ' * 30}Подготовка к сбору информации со страниц..")
 

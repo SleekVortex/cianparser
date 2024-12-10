@@ -137,7 +137,7 @@ class FlatPageParserAsync:
         res = await self.__session__.get(self.url, proxy=self.__proxy__)
         if res.status_code == 429:
             print('429 при парсинге страницы ожидание...')
-            await asyncio.sleep(max(normalvariate(90, 10), 180 * expovariate(lambd=1.5)))
+            await asyncio.sleep(max(normalvariate(150, 30), 300 * expovariate(lambd=1)))
         elif res.status_code == 200:
             self.offer_page_html = res.text
             self.offer_page_soup = bs4.BeautifulSoup(self.offer_page_html, 'html.parser')
