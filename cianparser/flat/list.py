@@ -1,6 +1,7 @@
 import bs4
 import time
 import asyncio
+import sys
 import pathlib
 import numpy as np
 import pandas as pd
@@ -209,15 +210,16 @@ class FlatListPageParserAsync(BaseListPageParser):
         offers = self.parse_list_func(list_soup)
 
         if not offers:
-            print('Страницы закончились')
+            sys.stdout.write('Страницы закончились')
+            sys.stdout.flush()
             return True, 0, True 
 
         # print("")
         # print(f"\r {page_number} page: {len(offers)} offers", end="\r", flush=True)
 
         if page_number == self.start_page and attempt_number == 0:
-            print(f"Collecting information from pages with list of offers", end="\n")
-
+            sys.stdout.write(f"Collecting information from pages with list of offers", end="\n")
+            sys.stdout.flush()
         # Разделяем объявления по прокси
         proxies_offers = self.__split_offers_on_proxies__(offers)
         # Создаем корутины на парсинг каждой квартиры
